@@ -4,6 +4,7 @@ import(
 	"fmt"
 	"math/rand"
 	"os"
+	"github.com/its-amit-kumar/code-runner-v2.git/runCode"
 )
 /*
 4 inputs
@@ -54,7 +55,10 @@ func main(){
 	}
 	fmt.Println("Done")
 
-	//stdout, stderr, errStatus = runCode.run(fileName, codeLanguage, timeLimit, memoryLimit);
+	stdout, stderr, errStatus := runCode.Run(fileName, input, timeLimit, memoryLimit)
+	fmt.Println(stdout)
+	fmt.Println(stderr)
+	fmt.Println(errStatus)
 
 	
 
