@@ -4,6 +4,7 @@ import(
 	"fmt"
 	"math/rand"
 	"os"
+	"time"
 	"github.com/its-amit-kumar/code-runner-v2.git/runCode"
 )
 /*
@@ -40,22 +41,28 @@ func createFile(pathToCodeFileWithName string, code string) (string, error){
 
 }
 func main(){
+	mapOfExtension := map[string]string{
+		"cpp" : ".cpp",
+	}
 	var code, codeLanguage, input string;
 	var timeLimit, memoryLimit int;
-	fmt.Scanln(&code);
+	//fmt.Scanln(&code);
+	code1, _ := os.ReadFile("sample-files/file.cpp")
+	code = string(code1)
 	fmt.Scanln(&codeLanguage);
 	fmt.Scanln(&input);
 	fmt.Scan(&timeLimit);
 	fmt.Scan(&memoryLimit);
 	//var stdout, stderr, errStatus string
+	rand.Seed(time.Now().UnixNano())
 	fileName := randSeq(10)
-	_, err := createFile(pathToCodeFiles+fileName, code)
+	_, err := createFile(pathToCodeFiles+fileName+mapOfExtension[codeLanguage], code)
 	if err != nil{
 		fmt.Println("Not of")
 	}
 	fmt.Println("Done")
 
-	stdout, stderr, errStatus := runCode.Run(fileName, input, timeLimit, memoryLimit)
+	stdout, stderr, errStatus := runCode.Run(fileName, codeLanguage, timeLimit, memoryLimit, input)
 	fmt.Println(stdout)
 	fmt.Println(stderr)
 	fmt.Println(errStatus)
