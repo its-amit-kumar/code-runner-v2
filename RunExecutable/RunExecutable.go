@@ -6,7 +6,11 @@ import (
 	"strings"
 	"context"
 	"time"
+	"fmt"
+	"syscall"
 )
+
+
 
 func Run(appAndArgument []string, length int, timelimit int, memorylimit int, input string)(string, string, error){
 	var stdout bytes.Buffer
@@ -20,8 +24,13 @@ func Run(appAndArgument []string, length int, timelimit int, memorylimit int, in
 	done := make(chan error, 1)
 	done <- cmd.Run()
 	errTLE := <-done
+	memoryConsumed := cmd.ProcessState.SysUsage().(*syscall.Rusage).Maxrss
 	if(errTLE!=nil){
 		return stdout.String(), "TLE", errTLE
+	}
+	if(int(memoryConsumed)>memorylimit){
+		fmt.Println(memoryConsumed)
+		return "", "kiledMem", errTLE
 	}
 	return stdout.String(), stderr.String(), errTLE
 

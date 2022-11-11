@@ -1,17 +1,16 @@
 // C++ program to display "Hello World"
 
 // Header file for input output functions
-#include <iostream>
+#include <bits/stdc++.h>
 using namespace std;
 
 // Main() function: where the execution of program begins
 int main()
 {
 	// prints hello world
+	int n;
+	cin>>n;
 	cout << "Hello World";
-	while(true){
+	cout<<n<<endl;
 
-	}
-
-	return 0;
 }

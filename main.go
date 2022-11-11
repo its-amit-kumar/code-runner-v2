@@ -16,7 +16,7 @@ memory limit
 */
 
 var letters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
-var pathToCodeFiles = "E:/code-runner-backend/"
+
 func randSeq(n int) string{
 	b := make([]rune, n)
 	for i:=range b{
@@ -41,6 +41,8 @@ func createFile(pathToCodeFileWithName string, code string) (string, error){
 
 }
 func main(){
+	pathToCodeFiles,_ := os.Getwd()
+	pathToCodeFiles+="/"
 	mapOfExtension := map[string]string{
 		"cpp" : ".cpp",
 	}

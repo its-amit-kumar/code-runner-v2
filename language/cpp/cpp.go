@@ -8,8 +8,8 @@ import(
 )
 
 func Run(fileName string, input string, timelimit int, memorylimit int)(string, string, error){
-	app := "g++";
-	cmd := exec.Command(app, fileName+".cpp", "-o", fileName);
+	app := "clang++";
+	cmd := exec.Command(app, "-fsanitize=address" ,fileName+".cpp", "-o", fileName);
 	_, err := cmd.Output();
 	if err != nil{
 		s, _ := json.MarshalIndent(err, "", "\t")
