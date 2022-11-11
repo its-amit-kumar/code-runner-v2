@@ -9,6 +9,9 @@ int main()
 {
 	// prints hello world
 	cout << "Hello World";
+	while(true){
+
+	}
 
 	return 0;
 }
