@@ -6,7 +6,7 @@ import (
 	"strings"
 	"context"
 	"time"
-	"fmt"
+	//"fmt"
 	"syscall"
 )
 
@@ -22,16 +22,29 @@ func Run(appAndArgument []string, length int, timelimit int, memorylimit int, in
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr
 	done := make(chan error, 1)
+	outputSize := make(chan bool, 10)
 	done <- cmd.Run()
-	errTLE := <-done
-	memoryConsumed := cmd.ProcessState.SysUsage().(*syscall.Rusage).Maxrss
-	if(errTLE!=nil){
-		return stdout.String(), "TLE", errTLE
+	go func(){
+		for{
+			if stdout.Len() >= 65536{
+				outputSize <- true
+			}
+		}
+	}()
+	select{
+	case errTLE := <-done:
+		if(errTLE!=nil){
+			//fmt.Println("Killing Code", errTLE)
+			return stdout.String(), "TLE", errTLE
+		}
+		memoryConsumed := cmd.ProcessState.SysUsage().(*syscall.Rusage).Maxrss
+		if(int(memoryConsumed)>memorylimit){
+			//fmt.Println(memoryConsumed)
+			return "", "kiledMem", errTLE
+		}
+		return stdout.String(), stderr.String(), errTLE
+	case <- outputSize:
+		return "", "KilledOutput", nil
 	}
-	if(int(memoryConsumed)>memorylimit){
-		fmt.Println(memoryConsumed)
-		return "", "kiledMem", errTLE
-	}
-	return stdout.String(), stderr.String(), errTLE
 
 }

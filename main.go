@@ -40,6 +40,8 @@ func createFile(pathToCodeFileWithName string, code string) (string, error){
 	return code, nil;
 
 }
+
+
 func main(){
 	pathToCodeFiles,_ := os.Getwd()
 	pathToCodeFiles+="/"
@@ -60,9 +62,9 @@ func main(){
 	fileName := randSeq(10)
 	_, err := createFile(pathToCodeFiles+fileName+mapOfExtension[codeLanguage], code)
 	if err != nil{
-		fmt.Println("Not of")
+		fmt.Println(err);
 	}
-	fmt.Println("Done")
+	//fmt.Println("Done")
 
 	stdout, stderr, errStatus := runCode.Run(fileName, codeLanguage, timeLimit, memoryLimit, input)
 	fmt.Println(stdout)
