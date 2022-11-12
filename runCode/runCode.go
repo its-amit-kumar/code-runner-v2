@@ -7,8 +7,8 @@ import(
 )
 
 // filePath with name does not contain extension
-func Run(fileNameWithPath string, codeLanguage string, timelimit int, memorylimit int, input string)(string, string, error, string, string){
-	var mapOfLanguageToFunction = map[string]func(string, string, int, int)(string, string, error, string, string){
+func Run(fileNameWithPath string, codeLanguage string, timelimit int, memorylimit int, input string)(string, string, error, float64, int64){
+	var mapOfLanguageToFunction = map[string]func(string, string, int, int)(string, string, error, float64, int64){
 		"cpp" : cpp.Run,
 		"python" : python.Run,
 	}

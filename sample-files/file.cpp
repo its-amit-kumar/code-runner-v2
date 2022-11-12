@@ -8,9 +8,8 @@ using namespace std;
 int main()
 {
 	// prints hello world
-	int arr[4];
-	while(true){
-
-	}	
+	for(int i= 0; i<65537; i++){
+		cout<<"A";
+	}
 
 }

@@ -8,12 +8,11 @@ import (
 	"time"
 	//"fmt"
 	"syscall"
-	"strconv"
 )
 
 
 
-func Run(appAndArgument []string, length int, timelimit int, memorylimit int, input string)(string, string, error, string, string){
+func Run(appAndArgument []string, length int, timelimit int, memorylimit int, input string)(string, string, error, float64, int64){
 	var stdout bytes.Buffer
 	var stderr bytes.Buffer
 	timelimitConstrain, cancel := context.WithTimeout(context.Background(), time.Millisecond*time.Duration(timelimit*1000))
@@ -24,39 +23,40 @@ func Run(appAndArgument []string, length int, timelimit int, memorylimit int, in
 	cmd.Stderr = &stderr
 	done := make(chan error, 1)
 	outputSize := make(chan bool, 10)
-	startTime := time.Now()
-	done <- cmd.Run()
 	go func(){
 		for{
-			if stdout.Len() >= 65536{
+			if stdout.Len() > 65536{
 				outputSize <- true
 			}
 		}
 	}()
+	startTime := time.Now()
+	done <- cmd.Run()
 	select{
 	case errTLE := <-done:
-		timeElapsed := time.Since(startTime)
+		timeElapsed := time.Since(startTime).Seconds()
 		memoryConsumed := cmd.ProcessState.SysUsage().(*syscall.Rusage).Maxrss
-		memoryConsumedString := strconv.FormatInt(memoryConsumed, 10)
 		if(errTLE!=nil){
 			//fmt.Println("Killing Code", errTLE)
 			//fmt.Println("killing code", stderr.String())
 			if(errTLE.Error() == "signal: killed"){
-				return stdout.String(), "TLE", errTLE, timeElapsed.String(), memoryConsumedString
+				return stdout.String(), "TLE", errTLE, timeElapsed, memoryConsumed
 			}
 			//fmt.Println(errTLE.Error())
-			return stdout.String(), stderr.String(), errTLE, timeElapsed.String(), memoryConsumedString
+			return stdout.String(), stderr.String(), errTLE, timeElapsed, memoryConsumed
+		}
+		if(stdout.Len()>65536){
+			return "", "KilledOutput", nil , timeElapsed, memoryConsumed
 		}
 		if(int(memoryConsumed)>memorylimit){
 			//fmt.Println(memoryConsumed)
-			return "", "kiledMem", errTLE, timeElapsed.String(), memoryConsumedString
+			return "", "kiledMem", errTLE, timeElapsed, memoryConsumed
 		}
-		return stdout.String(), stderr.String(), errTLE, timeElapsed.String(), memoryConsumedString
+		return stdout.String(), stderr.String(), errTLE, timeElapsed, memoryConsumed
 	case <- outputSize:
-		timeElapsed := time.Since(startTime)
+		timeElapsed := time.Since(startTime).Seconds()
 		memoryConsumed := cmd.ProcessState.SysUsage().(*syscall.Rusage).Maxrss
-		memoryConsumedString := strconv.FormatInt(memoryConsumed, 10)
-		return "", "KilledOutput", nil , timeElapsed.String(), memoryConsumedString
+		return "", "KilledOutput", nil , timeElapsed, memoryConsumed
 	}
 
 }

@@ -16,7 +16,7 @@ func deleteFile(fileNameWithExtension string){
 
 }
 
-func Run(fileName string, input string, timelimit int, memorylimit int)(string, string, error, string,string){
+func Run(fileName string, input string, timelimit int, memorylimit int)(string, string, error, float64,int64){
 	var compileStdout, compileStderr bytes.Buffer
 	app := "g++";
 	cmd := exec.Command(app, "-fsanitize=address", fileName+".cpp", "-o", fileName);
@@ -24,7 +24,7 @@ func Run(fileName string, input string, timelimit int, memorylimit int)(string, 
 	cmd.Stderr = &compileStderr
 	err := cmd.Run()
 	if err != nil{
-		return compileStdout.String(), compileStdout.String(), err, "", ""
+		return compileStdout.String(), compileStdout.String(), err, float64(0), int64(0)
 	}
 	appAndArguments := []string{"./"+fileName}
 	stdout, stderr, errorType, timeTaken, memoryTaken := RunExecutable.Run(appAndArguments, 1, timelimit, memorylimit, input)
