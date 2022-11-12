@@ -47,6 +47,7 @@ func main(){
 	pathToCodeFiles+="/"
 	mapOfExtension := map[string]string{
 		"cpp" : ".cpp",
+		"python" : ".py",
 	}
 	var code, codeLanguage, input string;
 	var timeLimit, memoryLimit int;
@@ -66,10 +67,12 @@ func main(){
 	}
 	//fmt.Println("Done")
 
-	stdout, stderr, errStatus := runCode.Run(fileName, codeLanguage, timeLimit, memoryLimit, input)
-	fmt.Println(stdout)
-	fmt.Println(stderr)
-	fmt.Println(errStatus)
+	stdout, stderr, errStatus, timeTaken, memoryTaken := runCode.Run(fileName, codeLanguage, timeLimit, memoryLimit, input)
+	fmt.Println("stdout ", stdout)
+	fmt.Println("stderr ", stderr)
+	fmt.Println("errStatus ", errStatus)
+	fmt.Println("Time Taken", timeTaken)
+	fmt.Println("Memory Taken", memoryTaken)
 
 	
 

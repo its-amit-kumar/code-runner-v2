@@ -8,9 +8,9 @@ using namespace std;
 int main()
 {
 	// prints hello world
-	int n;
-	cin>>n;
-	cout << "Hello World";
-	cout<<n<<endl;
+	int arr[4];
+	while(true){
+
+	}	
 
 }

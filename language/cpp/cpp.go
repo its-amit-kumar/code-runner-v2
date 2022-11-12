@@ -3,9 +3,9 @@ package cpp
 import(
 	"os"
 	"os/exec"
-	"fmt"
-	"encoding/json"
+//"fmt"
 	"github.com/its-amit-kumar/code-runner-v2.git/RunExecutable"
+	"bytes"
 )
 
 func deleteFile(fileNameWithExtension string){
@@ -16,19 +16,19 @@ func deleteFile(fileNameWithExtension string){
 
 }
 
-func Run(fileName string, input string, timelimit int, memorylimit int)(string, string, error){
-	app := "clang++";
-	cmd := exec.Command(app, "-fsanitize=address" ,fileName+".cpp", "-o", fileName);
-	_, err := cmd.Output();
+func Run(fileName string, input string, timelimit int, memorylimit int)(string, string, error, string,string){
+	var compileStdout, compileStderr bytes.Buffer
+	app := "g++";
+	cmd := exec.Command(app, "-fsanitize=address", fileName+".cpp", "-o", fileName);
+	cmd.Stdout = &compileStdout
+	cmd.Stderr = &compileStderr
+	err := cmd.Run()
 	if err != nil{
-		s, _ := json.MarshalIndent(err, "", "\t")
-		fmt.Println(err)
-		fmt.Print(string(s))
-		return "", "", err
+		return compileStdout.String(), compileStdout.String(), err, "", ""
 	}
 	appAndArguments := []string{"./"+fileName}
-	stdout, stderr, errorType := RunExecutable.Run(appAndArguments, 1, timelimit, memorylimit, input)
+	stdout, stderr, errorType, timeTaken, memoryTaken := RunExecutable.Run(appAndArguments, 1, timelimit, memorylimit, input)
 	deleteFile(fileName+".cpp")
 	deleteFile(fileName)
-	return stdout, stderr, errorType
+	return stdout, stderr, errorType, timeTaken, memoryTaken
 }
