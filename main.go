@@ -1,85 +1,51 @@
 package main
 
-import(
-	"fmt"
-	"math/rand"
-	"os"
-	"time"
-	"github.com/its-amit-kumar/code-runner-v2.git/runCode"
+import (
+  "fmt"
+  "net/http"
+  "github.com/gin-gonic/gin"
+  "github.com/its-amit-kumar/code-runner-v2.git/createCodeSubmission"
 )
-/*
-4 inputs
-input file name
-language
-time limit
-memory limit
-*/
 
-var letters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
-
-func randSeq(n int) string{
-	b := make([]rune, n)
-	for i:=range b{
-		b[i] = letters[rand.Intn(len(letters))]
-	}
-	return string(b);
+type SubmitCode struct{
+	Id string `json:"id"`
+	Code string `json:"code"`
+	TimeLimit int `json:"timeLimit"`
+	MemoryLimit int `json:"memoryLimit"`
+	Language string `json:"language"`
+	Input string `json:"input"`
 }
 
-func createFile(pathToCodeFileWithName string, code string) (string, error){
-	f, err := os.Create(pathToCodeFileWithName)
-	if err != nil{
-		return code, err;
+func SubmitCodeSubmission(c *gin.Context){
+	// fmt.Println(c)
+	var reqInput SubmitCode
+	if err := c.BindJSON(&reqInput); err!=nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": err.Error()})
 	}
-	defer f.Close()
-
-	_, err2 := f.WriteString(code)
+	//fmt.Println(reqInput)
+	fmt.Println(reqInput.Code, reqInput.Language, reqInput.Input, reqInput.TimeLimit, reqInput.MemoryLimit)
+	stdout, stderr, err, timeTaken, memoryTaken := createCodeSubmission.CreateSubmission(reqInput.Code, reqInput.Language, reqInput.Input, reqInput.TimeLimit, reqInput.MemoryLimit)
+	//fmt.Println("A")
+	fmt.Println(stdout, stderr, err, timeTaken, memoryTaken)
+	var errStatus string
+	if(err == nil){
+		errStatus = ""
+	}else{
+		errStatus = err.Error()
+	}
+	fmt.Println(errStatus)
 	
-	if err2!=nil{
-		return code, err
-	}
-	return code, nil;
-
+	c.JSON(http.StatusOK, gin.H{
+		"success":"ok",
+		"stdout":stdout,
+		"stderr":stderr,
+		"err":errStatus,
+		"timeTaken":timeTaken,
+		"memoryTaken":memoryTaken,})
 }
 
-
-func main(){
-	pathToCodeFiles,_ := os.Getwd()
-	pathToCodeFiles+="/"
-	mapOfExtension := map[string]string{
-		"cpp" : ".cpp",
-		"python" : ".py",
-		"java" : ".java",
-		"javascript" : ".js",
-	}
-	var code, codeLanguage, input string;
-	var timeLimit, memoryLimit int;
-	//fmt.Scanln(&code);
-	code1, _ := os.ReadFile("sample-files/file.js")
-	code = string(code1)
-	fmt.Scanln(&codeLanguage);
-	fmt.Scanln(&input);
-	fmt.Scan(&timeLimit);
-	fmt.Scan(&memoryLimit);
-	//var stdout, stderr, errStatus string
-	rand.Seed(time.Now().UnixNano())
-	fileName := randSeq(10)
-	if(codeLanguage == "java"){
-		fileName = "Main"
-	}
-	_, err := createFile(pathToCodeFiles+fileName+mapOfExtension[codeLanguage], code)
-	if err != nil{
-		fmt.Println(err);
-	}
-	//fmt.Println("Done")
-
-	stdout, stderr, errStatus, timeTaken, memoryTaken := runCode.Run(fileName, codeLanguage, timeLimit, memoryLimit, input)
-	fmt.Println("stdout ", stdout)
-	fmt.Println("stderr ", stderr)
-	fmt.Println("errStatus ", errStatus)
-	fmt.Println("Time Taken", timeTaken)
-	fmt.Println("Memory Taken", memoryTaken)
-
-	
-
-
+func main() {
+  r := gin.Default()
+  r.POST("/submitCode", SubmitCodeSubmission)
+  r.Run(":5300") // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
 }

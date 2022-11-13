@@ -25,6 +25,7 @@ func Run(fileName string, input string, timelimit int, memorylimit int)(string, 
 	err := cmd.Run()
 	if err != nil{
 		deleteFile(fileName+".cpp")
+		deleteFile(fileName)
 		return compileStdout.String(), compileStderr.String(), err, float64(0), int64(0)
 	}
 	appAndArguments := []string{"./"+fileName}
