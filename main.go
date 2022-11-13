@@ -17,16 +17,11 @@ type SubmitCode struct{
 }
 
 func SubmitCodeSubmission(c *gin.Context){
-	// fmt.Println(c)
 	var reqInput SubmitCode
 	if err := c.BindJSON(&reqInput); err!=nil {
 		c.JSON(http.StatusBadRequest, gin.H{"success": err.Error()})
 	}
-	//fmt.Println(reqInput)
-	fmt.Println(reqInput.Code, reqInput.Language, reqInput.Input, reqInput.TimeLimit, reqInput.MemoryLimit)
 	stdout, stderr, err, timeTaken, memoryTaken := createCodeSubmission.CreateSubmission(reqInput.Code, reqInput.Language, reqInput.Input, reqInput.TimeLimit, reqInput.MemoryLimit)
-	//fmt.Println("A")
-	fmt.Println(stdout, stderr, err, timeTaken, memoryTaken)
 	var errStatus string
 	if(err == nil){
 		errStatus = ""
