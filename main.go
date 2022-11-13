@@ -48,11 +48,13 @@ func main(){
 	mapOfExtension := map[string]string{
 		"cpp" : ".cpp",
 		"python" : ".py",
+		"java" : ".java",
+		"javascript" : ".js",
 	}
 	var code, codeLanguage, input string;
 	var timeLimit, memoryLimit int;
 	//fmt.Scanln(&code);
-	code1, _ := os.ReadFile("sample-files/file.cpp")
+	code1, _ := os.ReadFile("sample-files/file.js")
 	code = string(code1)
 	fmt.Scanln(&codeLanguage);
 	fmt.Scanln(&input);
@@ -61,6 +63,9 @@ func main(){
 	//var stdout, stderr, errStatus string
 	rand.Seed(time.Now().UnixNano())
 	fileName := randSeq(10)
+	if(codeLanguage == "java"){
+		fileName = "Main"
+	}
 	_, err := createFile(pathToCodeFiles+fileName+mapOfExtension[codeLanguage], code)
 	if err != nil{
 		fmt.Println(err);
