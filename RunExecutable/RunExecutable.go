@@ -44,6 +44,9 @@ func Run(appAndArgument []string, length int, timelimit int, memorylimit int, in
 		makeLenghtCheckGoRoutineQuit<-true
 		timeElapsed := time.Since(startTime).Seconds()
 		memoryConsumed := cmd.ProcessState.SysUsage().(*syscall.Rusage).Maxrss
+		if(stdout.Len()>65536){
+			return "", "KilledOutput", nil , timeElapsed, memoryConsumed
+		}	
 		if(errTLE!=nil){
 			//fmt.Println("Killing Code", errTLE)
 			//fmt.Println("killing code", stderr.String())
@@ -52,9 +55,6 @@ func Run(appAndArgument []string, length int, timelimit int, memorylimit int, in
 			}
 			//fmt.Println(errTLE.Error())
 			return stdout.String(), stderr.String(), errTLE, timeElapsed, memoryConsumed
-		}
-		if(stdout.Len()>65536){
-			return "", "KilledOutput", nil , timeElapsed, memoryConsumed
 		}
 		if(int(memoryConsumed)>memorylimit){
 			//fmt.Println(memoryConsumed)
