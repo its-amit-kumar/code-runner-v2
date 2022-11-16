@@ -23,10 +23,17 @@ func Run(appAndArgument []string, length int, timelimit int, memorylimit int, in
 	cmd.Stderr = &stderr
 	done := make(chan error, 1)
 	outputSize := make(chan bool, 10)
+	makeLenghtCheckGoRoutineQuit := make(chan bool)
 	go func(){
 		for{
-			if stdout.Len() > 65536{
-				outputSize <- true
+			select{
+			case <- makeLenghtCheckGoRoutineQuit:
+				return
+			default:
+				if stdout.Len() > 65536{
+					outputSize <- true
+					return
+				}
 			}
 		}
 	}()
@@ -34,6 +41,7 @@ func Run(appAndArgument []string, length int, timelimit int, memorylimit int, in
 	done <- cmd.Run()
 	select{
 	case errTLE := <-done:
+		makeLenghtCheckGoRoutineQuit<-true
 		timeElapsed := time.Since(startTime).Seconds()
 		memoryConsumed := cmd.ProcessState.SysUsage().(*syscall.Rusage).Maxrss
 		if(errTLE!=nil){
@@ -54,6 +62,7 @@ func Run(appAndArgument []string, length int, timelimit int, memorylimit int, in
 		}
 		return stdout.String(), stderr.String(), errTLE, timeElapsed, memoryConsumed
 	case <- outputSize:
+		makeLenghtCheckGoRoutineQuit <- true
 		timeElapsed := time.Since(startTime).Seconds()
 		memoryConsumed := cmd.ProcessState.SysUsage().(*syscall.Rusage).Maxrss
 		return "", "KilledOutput", nil , timeElapsed, memoryConsumed
