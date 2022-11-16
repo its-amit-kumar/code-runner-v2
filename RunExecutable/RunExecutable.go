@@ -50,6 +50,10 @@ func Run(appAndArgument []string, length int, timelimit int, memorylimit int, in
 		if(stdout.Len()>65536){
 			return "", "KilledOutput", nil , timeElapsed, memoryConsumed
 		}
+		if(int(memoryConsumed)>memorylimit){
+			//fmt.Println(memoryConsumed)
+			return "", "kiledMem", errTLE, timeElapsed, memoryConsumed
+		}
 		if(errTLE!=nil){
 			//fmt.Println("Killing Code", errTLE)
 			//fmt.Println("killing code", stderr.String())
@@ -60,10 +64,6 @@ func Run(appAndArgument []string, length int, timelimit int, memorylimit int, in
 			return stdout.String(), stderr.String(), errTLE, timeElapsed, memoryConsumed
 		}
 		
-		if(int(memoryConsumed)>memorylimit){
-			//fmt.Println(memoryConsumed)
-			return "", "kiledMem", errTLE, timeElapsed, memoryConsumed
-		}
 		return stdout.String(), stderr.String(), errTLE, timeElapsed, memoryConsumed
 	case <- outputSize:
 		outputGoRoutine<-true
