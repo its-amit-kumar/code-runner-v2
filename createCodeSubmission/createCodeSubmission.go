@@ -50,6 +50,7 @@ func CreateSubmission(code string, codeLanguage string, input string, timeLimit 
 		"python" : ".py",
 		"java" : ".java",
 		"javascript" : ".js",
+		"c":".c",
 	}
 	rand.Seed(time.Now().UnixNano())
 	fileName := randSeq(10)
