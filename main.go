@@ -20,6 +20,7 @@ func SubmitCodeSubmission(c *gin.Context){
 	var reqInput SubmitCode
 	if err := c.BindJSON(&reqInput); err!=nil {
 		c.JSON(http.StatusBadRequest, gin.H{"success": err.Error()})
+		return
 	}
 	stdout, stderr, err, timeTaken, memoryTaken := createCodeSubmission.CreateSubmission(reqInput.Code, reqInput.Language, reqInput.Input, reqInput.TimeLimit, reqInput.MemoryLimit)
 	var errStatus string
