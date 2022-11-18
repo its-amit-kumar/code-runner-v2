@@ -4,6 +4,7 @@ import (
   "fmt"
   "net/http"
   "github.com/gin-gonic/gin"
+  "github.com/gin-contrib/cors"
   "github.com/its-amit-kumar/code-runner-v2.git/createCodeSubmission"
 )
 
@@ -42,6 +43,11 @@ func SubmitCodeSubmission(c *gin.Context){
 
 func main() {
   r := gin.Default()
+  r.Use(cors.New(cors.Config{
+        AllowOrigins: []string{"*"},
+        AllowMethods: []string{"POST", "PUT", "PATCH", "DELETE"},
+        AllowHeaders: []string{"Content-Type,access-control-allow-origin, access-control-allow-headers"},
+    }))
   r.POST("/submitCode", SubmitCodeSubmission)
   r.Run(":5300") // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
 }
