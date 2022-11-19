@@ -49,5 +49,5 @@ func main() {
         AllowHeaders: []string{"Content-Type,access-control-allow-origin, access-control-allow-headers"},
     }))
   r.POST("/submitCode", SubmitCodeSubmission)
-  r.Run(":443") // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
+  r.Run(":5300") // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
 }
