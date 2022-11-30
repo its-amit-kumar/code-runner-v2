@@ -1,6 +1,7 @@
 package main
 
 import (
+	//"os/exec"
   "fmt"
   "net/http"
   "github.com/gin-gonic/gin"
@@ -42,12 +43,30 @@ func SubmitCodeSubmission(c *gin.Context){
 }
 
 func main() {
-  r := gin.Default()
-  r.Use(cors.New(cors.Config{
-        AllowOrigins: []string{"*"},
-        AllowMethods: []string{"POST", "PUT", "PATCH", "DELETE"},
-        AllowHeaders: []string{"Content-Type,access-control-allow-origin, access-control-allow-headers"},
-    }))
-  r.POST("/submitCode", SubmitCodeSubmission)
-  r.Run(":5300") // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
+   r := gin.Default()
+   r.Use(cors.New(cors.Config{
+         AllowOrigins: []string{"*"},
+         AllowMethods: []string{"POST", "PUT", "PATCH", "DELETE"},
+         AllowHeaders: []string{"Content-Type,access-control-allow-origin, access-control-allow-headers"},
+     }))
+   r.POST("/submitCode", SubmitCodeSubmission)
+   r.Run(":5300") // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
 }
+
+// func main() {
+// 	cmd := exec.Command("adduser", "test4")
+// 	_, err := cmd.Output()
+// 	if err!=nil {
+// 		fmt.Println("Error occured")
+// 		return
+// 	}
+// 	fmt.Println("User Created, getting UID and GID of the user")
+// 	cmd1 := exec.Command("id", "-u", "test4")
+// 	output1,err1 := cmd1.Output()
+// 	if(err1!=nil){
+// 		fmt.Println("Couldn't get uid")
+// 		return
+// 	}
+// 	fmt.Printf("var1 = %T\n", output1)
+// 	fmt.Println("The uid is", string(output1));
+// }
