@@ -36,12 +36,19 @@ func createAndReturnUser(userName string)(uint32, error){
 		fmt.Println("Not able to get UID")
 		return 0, err1
 	}
+	// cmd2 := exec.Command("setquota", "-u", userName, "10MB", "10MB", "0", "0", "/")
+	// _,err2 := cmd2.Output()
+	// if(err2!=nil){
+	// 	fmt.Println("Not able to set quota")
+	// 	return 0, err2
+	// }
 	userIdInt := strings.TrimSuffix(string(output1),"\n")
 	userId, err1 := strconv.ParseUint(string(userIdInt), 10, 32)
 	return uint32(userId), err1
 }
 
 func Run(appAndArgument []string, length int, timelimit int, memorylimit int, input string)(string, string, error, float64, int64){
+	var rLimit syscall.Rlimit	
 	var stdout bytes.Buffer
 	var stderr bytes.Buffer
 	timelimitConstrain, cancel := context.WithTimeout(context.Background(), time.Millisecond*time.Duration(timelimit*1000))
@@ -54,6 +61,13 @@ func Run(appAndArgument []string, length int, timelimit int, memorylimit int, in
 	userId, errUserId := createAndReturnUser(userName)
 	if(errUserId!=nil){
 		return "", "errUserCreation", errUserId, 0, 0
+	}
+	fmt.Println(userId)
+	rLimit.Max = 65535
+	rLimit.Cur = 65535
+	errSetRLimit := syscall.Setrlimit(syscall.RLIMIT_CORE, &rLimit)
+	if errSetRLimit != nil{
+		return "", "errSetRLimit", errSetRLimit, 0, 0
 	}
 	cmd.SysProcAttr = &syscall.SysProcAttr{}
 	cmd.SysProcAttr.Credential = &syscall.Credential{Uid:userId, Gid:userId}
