@@ -28,7 +28,7 @@ func Run(fileName string, input string, timelimit int, memorylimit int)(string, 
 		deleteFile(fileName)
 		return compileStdout.String(), compileStderr.String(), err, float64(0), int64(0)
 	}
-	appAndArguments := []string{"/bin/bash", "-c", "ulimit -d "+fmt.Sprint(memorylimit)+" -f 65 -u 4 -n 200 -l 64 && ./"+fileName}
+	appAndArguments := []string{"/bin/bash", "-c", "ulimit -d "+fmt.Sprint(memorylimit)+" -f 65 -u 4 -n 200 -l 64 -t "+fmt.Sprint(timelimit)+" && ./"+fileName}
 	stdout, stderr, errorType, timeTaken, memoryTaken := RunExecutable.Run(appAndArguments, 1, timelimit, memorylimit, input)
 	deleteFile(fileName+".c")
 	deleteFile(fileName)
