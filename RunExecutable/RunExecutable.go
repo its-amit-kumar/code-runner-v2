@@ -5,7 +5,7 @@ import (
 	"os/exec"
 	"bytes"
 	"strings"
-	//"context"
+	"context"
 	"time"
 	"fmt"
 	"syscall"
@@ -69,7 +69,7 @@ func Run(appAndArgument []string, length int, timelimit int, memorylimit int, in
 	//defer cancel()
 	userName := randSeq(10)
 	userId, errUserId := createAndReturnUser(userName)
-	cmd := exec.Command(appAndArgument[0], appAndArgument[1:]...)
+	cmd := exec.Command(timelimitConstrain, appAndArgument[0], appAndArgument[1:]...)
 	cmd.Stdin = strings.NewReader(input)
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr
@@ -100,7 +100,7 @@ func Run(appAndArgument []string, length int, timelimit int, memorylimit int, in
 						}
 						return
 					}
-					if(time.Since(startTime).Seconds() > (float64(timelimit) + 0.1)){
+					if(time.Since(startTime).Seconds() > float64(timelimit + 0.5)){
 						_, errr := pkill.Pkill("sleep", syscall.SIGKILL)
 						if(errr!=nil){
 							fmt.Println("unalbe to kill sleep", errr)
