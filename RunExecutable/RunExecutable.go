@@ -5,7 +5,7 @@ import (
 	"os/exec"
 	"bytes"
 	"strings"
-	"context"
+	//"context"
 	"time"
 	"fmt"
 	"syscall"
@@ -65,11 +65,11 @@ func createAndReturnUser(userName string)(uint32, error){
 func Run(appAndArgument []string, length int, timelimit int, memorylimit int, input string)(string, string, error, float64, int64){
 	var stdout bytes.Buffer
 	var stderr bytes.Buffer
-	timelimitConstrain, cancel := context.WithTimeout(context.Background(), time.Millisecond*time.Duration(timelimit*1000))
-	defer cancel()
+	//timelimitConstrain, cancel := context.WithTimeout(context.Background(), time.Millisecond*time.Duration(timelimit*1000))
+	//defer cancel()
 	userName := randSeq(10)
 	userId, errUserId := createAndReturnUser(userName)
-	cmd := exec.CommandContext(timelimitConstrain, appAndArgument[0], appAndArgument[1:]...)
+	cmd := exec.Command(appAndArgument[0], appAndArgument[1:]...)
 	cmd.Stdin = strings.NewReader(input)
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr
