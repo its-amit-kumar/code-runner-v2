@@ -3,7 +3,7 @@ package java
 import(
 	"os"
 	"os/exec"
-//"fmt"
+	"fmt"
 	"github.com/its-amit-kumar/code-runner-v2.git/RunExecutable"
 	"bytes"
 )
@@ -28,7 +28,7 @@ func Run(fileName string, input string, timelimit int, memorylimit int)(string, 
 		deleteFile("Main.class")
 		return compileStdout.String(), compileStderr.String(), err, float64(0), int64(0)
 	}
-	appAndArguments := []string{"java", "Main"}
+	appAndArguments := []string{"/bin/bash", "-c", "ulimit -d "+fmt.Sprint(memorylimit)+" -f  65 -u 32 -n 200 -l 64 && java "+"Main"}
 	stdout, stderr, errorType, timeTaken, memoryTaken := RunExecutable.Run(appAndArguments, 2, timelimit, memorylimit, input)
 	deleteFile("Main.java")
 	deleteFile("Main.class")

@@ -3,7 +3,7 @@ package cpp
 import(
 	"os"
 	"os/exec"
-//"fmt"
+	"fmt"
 	"github.com/its-amit-kumar/code-runner-v2.git/RunExecutable"
 	"bytes"
 )
@@ -19,7 +19,7 @@ func deleteFile(fileNameWithExtension string){
 func Run(fileName string, input string, timelimit int, memorylimit int)(string, string, error, float64,int64){
 	var compileStdout, compileStderr bytes.Buffer
 	app := "g++";
-	cmd := exec.Command(app, "-fsanitize=address", fileName+".cpp", "-o", fileName);
+	cmd := exec.Command(app, fileName+".cpp", "-o", fileName);
 	cmd.Stdout = &compileStdout
 	cmd.Stderr = &compileStderr
 	err := cmd.Run()
@@ -28,7 +28,7 @@ func Run(fileName string, input string, timelimit int, memorylimit int)(string, 
 		deleteFile(fileName)
 		return compileStdout.String(), compileStderr.String(), err, float64(0), int64(0)
 	}
-	appAndArguments := []string{"./"+fileName}
+	appAndArguments := []string{"/bin/bash", "-c", "ulimit -d "+fmt.Sprint(memorylimit)+" -f  65 -u 4 -n 200 -l 64 && ./"+fileName}
 	stdout, stderr, errorType, timeTaken, memoryTaken := RunExecutable.Run(appAndArguments, 1, timelimit, memorylimit, input)
 	deleteFile(fileName+".cpp")
 	deleteFile(fileName)

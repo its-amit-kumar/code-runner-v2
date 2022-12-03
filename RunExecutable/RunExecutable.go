@@ -1,6 +1,7 @@
 package RunExecutable
 
 import (
+	"os"
 	"os/exec"
 	"bytes"
 	"strings"
@@ -10,6 +11,8 @@ import (
 	"syscall"
 	"strconv"
 	"math/rand"
+	"errors"
+	"github.com/pbar1/pkill-go"
 )
 
 var letters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
@@ -21,6 +24,18 @@ func randSeq(n int) string{
 	}
 	return string(b);
 }
+
+func FileExists(filePath string) (bool, error) {
+    info, err := os.Stat(filePath)
+    if err == nil {
+        return !info.IsDir(), nil
+    }
+    if errors.Is(err, os.ErrNotExist) {
+        return false, nil
+    }
+    return false, err
+}
+
 
 func createAndReturnUser(userName string)(uint32, error){
 	cmd := exec.Command("useradd", userName)
@@ -48,32 +63,30 @@ func createAndReturnUser(userName string)(uint32, error){
 }
 
 func Run(appAndArgument []string, length int, timelimit int, memorylimit int, input string)(string, string, error, float64, int64){
-	var rLimit syscall.Rlimit	
 	var stdout bytes.Buffer
 	var stderr bytes.Buffer
 	timelimitConstrain, cancel := context.WithTimeout(context.Background(), time.Millisecond*time.Duration(timelimit*1000))
 	defer cancel()
+	userName := randSeq(10)
+	userId, errUserId := createAndReturnUser(userName)
 	cmd := exec.CommandContext(timelimitConstrain, appAndArgument[0], appAndArgument[1:]...)
 	cmd.Stdin = strings.NewReader(input)
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr
-	userName := randSeq(10)
-	userId, errUserId := createAndReturnUser(userName)
 	if(errUserId!=nil){
 		return "", "errUserCreation", errUserId, 0, 0
 	}
+	
 	fmt.Println(userId)
-	rLimit.Max = 65535
-	rLimit.Cur = 65535
-	errSetRLimit := syscall.Setrlimit(syscall.RLIMIT_CORE, &rLimit)
-	if errSetRLimit != nil{
-		return "", "errSetRLimit", errSetRLimit, 0, 0
-	}
 	cmd.SysProcAttr = &syscall.SysProcAttr{}
+	cmd.SysProcAttr.Pdeathsig = syscall.SIGKILL
+	cmd.SysProcAttr.GidMappingsEnableSetgroups = true
+	cmd.SysProcAttr.Setpgid = true
 	cmd.SysProcAttr.Credential = &syscall.Credential{Uid:userId, Gid:userId}
 	done := make(chan error, 1)
 	outputSize := make(chan bool, 10)
 	outputGoRoutine := make(chan bool, 1)
+	startTime := time.Now()
 	go func(){
 		for{
 			select{ 
@@ -87,11 +100,24 @@ func Run(appAndArgument []string, length int, timelimit int, memorylimit int, in
 						}
 						return
 					}
+					if(time.Since(startTime).Seconds() > float64(timelimit)){
+						_, errr := pkill.Pkill("sleep", syscall.SIGKILL)
+						if(errr!=nil){
+							fmt.Println("unalbe to kill sleep", errr)
+						}
+						for i:= 0; i<10; i++{
+							killAllByUser := exec.Command("/bin/bash", "-c", "killall -u "+userName)
+							_, errKill := killAllByUser.CombinedOutput()
+							if(errKill!=nil){
+								fmt.Println("Unable to killl user process", errKill, i)
+							}
+						}
+						return
+					}
 			}
 		}
 	}()
-	startTime := time.Now()
-	done <- cmd.Run()
+	done<-cmd.Run()
 	select{
 	case errTLE := <-done:
 		outputGoRoutine<-true
