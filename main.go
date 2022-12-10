@@ -10,7 +10,7 @@ import (
 )
 
 type SubmitCode struct{
-	Id string `json:"id"`
+	Id uint64 `json:"id"`
 	Code string `json:"code"`
 	TimeLimit int `json:"timeLimit"`
 	MemoryLimit int `json:"memoryLimit"`
